@@ -1,37 +1,48 @@
+import os
+import base64
 from dotenv import load_dotenv
+from openai import OpenAI
+from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
-
-import os
-from fastapi import FastAPI, File, UploadFile
-import openai
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = FastAPI()
-openai.api_key = os.getenv("OPENAI_API_KEY") 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["POST"],
+    allow_headers=["*"],
+)
 
 @app.post("/upload")
-async def upload(image: UploadFile = File(...)):
-
+async def upload_image(image: UploadFile = File(...)):
+    # 1) Read & encode
     img_bytes = await image.read()
+    b64 = base64.b64encode(img_bytes).decode("utf-8")
+    data_url = f"data:{image.content_type};base64,{b64}"
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4o",  
-        messages=[
-          {
-            "role": "user",
-            "content": (
-              "Please identify the make, model, and year of this car, "
-              "and give an approximate current market value in USD."
-            )
-          }
+    # 2) Send to the Responses API
+    resp = client.responses.create(
+        model="gpt-4o",
+        input=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                      "type": "input_text",
+                      "text": (
+                        "Please identify the make, model, and year of this car, "
+                        "and give an approximate current market value in USD."
+                      )
+                    },
+                    {"type": "input_image", "image_url": data_url}
+                ],
+            }
         ],
-        files=[{
-          "file": img_bytes,
-          "filename": image.filename,
-          "purpose": "vision"
-        }]
     )
 
-    answer = response.choices[0].message.content
-
-    return { "estimate": answer }
+    # 3) Grab the text answer
+    estimate = resp.output_text
+    return {"value": estimate}
