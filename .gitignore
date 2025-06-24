@@ -1,0 +1,18 @@
+#  ──────────── Node / Vite (frontend) ────────────
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+
+# Local env files (both front‐ and back‐end)
+*.env
+.env
+
+#  ──────────── Python (backend) ────────────
+.venv/                   # your virtualenv
+/backend/__pycache__/    # Python bytecode
+/backend/*.py[cod]       # .pyc, .pyo, etc.
+
+#  ──────────── Editor / OS files ────────────
+.vscode/                 # VS Code settings
+.DS_Store                # macOS Finder metadata
+npm-debug.log*           # npm debug logs
