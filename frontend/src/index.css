@@ -6,8 +6,31 @@
 
 html, body, #root {
   margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: Arial, sans-serif;
+}
+
+.container {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+input[type='file'] {
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.result {
+  margin-top: 20px;
+  font-weight: bold;
 }
 
