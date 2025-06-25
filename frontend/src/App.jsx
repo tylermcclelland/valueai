@@ -1,46 +1,72 @@
-import React, { useState } from 'react';
-import './index.css';
+// frontend/src/App.jsx
+import React, { useState } from "react";
+import "./App.css";
 
 function App() {
   const [file, setFile] = useState(null);
-  const [result, setResult] = useState('');
+  const [result, setResult] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) return alert('Please select an image.');
+    if (!file) return alert("Please select an image.");
 
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append("image", file);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL
+      const API_URL = import.meta.env.VITE_API_URL;
       const res = await fetch(`${API_URL}/upload`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
       });
       const data = await res.json();
-      setResult(`Estimated value: $${data.value ?? 'unknown'}`);
-    } catch (err) {
-      console.error(err);
-      setResult('Error estimating car value.');
+      setResult(data.value || "Unknown");
+    } catch {
+      setResult("Error estimating car value.");
     }
   };
 
-  return (
-    <div className="container">
+  // in App.jsx
+
+return (
+  <div className="app-container">
+    <div className="card">
       <h1>Value AI</h1>
+
       <form onSubmit={handleSubmit}>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setFile(e.target.files[0])}
-        />
-        <button type="submit">Estimate Value</button>
+        <div className="form-controls">
+          <div className="file-input-wrapper">
+            <span className="file-input-trigger">
+              {file ? file.name : "Upload Image"}
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="submit-btn"
+            disabled={!file}
+          >
+            Get Value
+          </button>
+        </div>
       </form>
-      <div className="result">{result}</div>
+
+      {result && (
+        <div className="result-box">
+          <strong>Result:</strong> {result}
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
+
 }
 
 export default App;
+
 
