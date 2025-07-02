@@ -12,6 +12,7 @@ function App() {
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [searchError, setSearchError] = useState("");
   const [searchResult, setSearchResult] = useState(null);  
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // Image upload handler
   const handleSubmit = async (e) => {
@@ -34,65 +35,34 @@ function App() {
     }
   };
 
+  // Search bar handler (proxy through backend)
   const handleFindCars = async () => {
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    console.log("🔑 API Key is:", apiKey);
-  
     if (!searchTerm.trim()) return;
     setLoadingSearch(true);
     setSearchError("");
     setSearchResult(null);
-  
+
     try {
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      const res = await fetch(`${API_URL}/find-cars`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content: `
-  You are a helpful car valuation assistant.
-  User will provide a car description like "Honda Civic 2024".
-  Reply with only a JSON object in this exact format:
-  
-  {
-    "make": string,
-    "model": string,
-    "year": number,
-    "valueRange": string
-  }
-              `.trim()
-            },
-            {
-              role: "user",
-              content: searchTerm.trim()
-            }
-          ],
-          temperature: 0
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ searchTerm: searchTerm.trim() }),
       });
-  
-      console.log("🔥 HTTP Status:", res.status);
-      const body = await res.json();
-      console.log("🗒️ Full OpenAI Response:", body);
-  
-      const text = body.choices?.[0]?.message?.content?.trim() || "";
-      console.log("🔍 OpenAI Response Text:", text);
-  
-      const parsed = JSON.parse(text);
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const parsed = await res.json();
       setSearchResult(parsed);
     } catch (err) {
-      console.error("Failed to fetch or parse car info:", err);
+      console.error("Failed to fetch car info:", err);
       setSearchError("Failed to fetch car info.");
     } finally {
       setLoadingSearch(false);
     }
   };
+
   // in App.jsx
 return (
   <div className="app-container">
