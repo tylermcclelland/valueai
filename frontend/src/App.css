@@ -63,80 +63,7 @@ h1 {
   align-items: center;
 }
 
-.animated-text {
-  color: rgba(255, 255, 255, 0.7); /* White with slight transparency */
-  font-size: 1.2rem;
-  margin: 0; /* Remove default paragraph margins */
-  white-space: nowrap; /* Prevent text from wrapping */
-  opacity: 0; /* Start completely transparent */
-  transition: opacity 0.5s ease-in-out; /* Smooth fade in/out */
-}
-
-.animated-text.visible {
-  opacity: 1; /* Fade in */
-}
-
-.animated-text.hidden {
-  opacity: 0; /* Fade out */
-}
-
-/* ── Main Action Area ───────────────────────────────────────────────────── */
-.main-action-area {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
-.estimate-button {
-  height: 56px; /* 8px padding-top + 40px icon height + 8px padding-bottom of action-bar */
-  padding: 0 24px; /* Adjust padding to maintain horizontal spacing */
-  font-weight: bold;
-  border: none;
-  border-radius: 9999px;
-  background-color: #111827;
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.estimate-button:hover {
-  background-color: #666c78;
-}
-
-.loading-spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.action-bar {
-  display: flex;
-  align-items: center;
-  max-width: 100px; /* Collapsed max-width */
-  background-color: rgba(255, 255, 255, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 9999px;
-  padding: 8px;
-  transition: max-width 0.3s ease-in-out;
-}
-
-.action-bar.search-active {
-  max-width: 400px; /* Expanded max-width */
-}
-
+/* Let the file input grow to avoid wrapping */
 .file-input-wrapper {
   position: relative;
   display: inline-block;
@@ -158,23 +85,31 @@ h1 {
   width: 24px;
   height: 24px;
   color: #fff;
-}
-
-.image-preview {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.result-image {
-  width: 100%;
+  background: #000000;
+  border: none;
   border-radius: 8px;
-  margin-bottom: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button.submit-btn:not(:disabled):hover {
+  background: #2563eb;
 }
 
-.file-input-wrapper input[type="file"] {
-  display: none;
+
+.result-box {
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 8px;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.search-bar {
+  width: calc(40vw - 120px);
+  margin: 24px auto;
 }
 
 .search-input-wrapper {
@@ -217,59 +152,8 @@ h1 {
   transition: opacity 0.3s ease-in-out;
 }
 
-.action-bar.search-active .search-input::placeholder {
-  opacity: 1;
-}
-
-/* ── Result boxes ────────────────────────────────────────────────────────── */
-.result-box {
-  margin: 24px auto;
-  max-width: 500px;
-  padding: 24px;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  text-align: left;
-  word-wrap: break-word;
-}
-
-.result-grid {
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.grid-item {
-  padding: 4px 0;
-}
-
-.grid-item strong {
-  font-weight: bold;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.description {
-  margin-top: 16px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* ── Drag and Drop Overlay ──────────────────────────────────────────────── */
-.app-wrapper {
-  position: relative;
-}
-
-.drop-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.go-button {
+  background-color: #111827;
   color: white;
   font-size: 2rem;
   font-weight: bold;
