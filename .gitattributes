@@ -1,0 +1,12 @@
+# ── Vendored Dependencies & virtualenvs ─────────────────
+**/.venv/**       linguist-vendored
+frontend/node_modules/** linguist-vendored
+backend/.venv/**  linguist-vendored
+
+# ── Build and artifact directories ───────────────────────
+frontend/dist/**  linguist-vendored
+frontend/.vite/** linguist-vendored
+
+# ── Optionally mark generated files as such ───────────────
+**/*.min.js       linguist-vendored
+**/*.map          linguist-vendored
