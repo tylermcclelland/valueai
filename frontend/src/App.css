@@ -1,159 +1,231 @@
+/* frontend/src/App.css */
 
+/* ── Global resets & box sizing ───────────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
 
-body, html, #root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: sans-serif;
+/* ── Gradient backdrop ─────────────────────────────────────────────────────── */
+.gradient-bg {
+  position: fixed;
+  inset: 0;                     /* top:0; right:0; bottom:0; left:0 */
+  background: linear-gradient(
+    45deg,
+    #ff6a95,
+    #ffcc70,
+    #6de7e7,
+    #a18cd1
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 30s ease infinite;
+  z-index: -1;                  /* behind your card */
 }
 
+@keyframes gradientShift {
+  0%   { background-position:   0%  50%; }
+  25%  { background-position:  50% 100%; }
+  50%  { background-position: 100%  50%; }
+  75%  { background-position:  50%   0%; }
+  100% { background-position:   0%  50%; }
+}
+
+/* ── App container & content wrapper ────────────────────────────────────── */
 .app-container {
   display: flex;
+  flex-direction: column; /* Stack content vertically */
   align-items: center;
   justify-content: center;
-  background: #f3f4f6;
-  min-height: 100%;
+  min-height: 100vh;             /* full viewport height */
   padding: 20px;
-}
-
-.card {
-  background: #fff;
-  padding: 64px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  width: 100%;
-  max-width: none;
   text-align: center;
-  min-height: 270px;
 }
 
-/* Flex row with a gap */
-.form-controls {
+.content-wrapper {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* ── Title ──────────────────────────────────────────────────────────────── */
+h1 {
+  font-size: 4rem; /* Larger font size */
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for readability */
+  margin-bottom: 1.5rem; /* Adjusted spacing below title */
+}
+
+.animated-text-container {
+  min-height: 1.5rem; /* Adjusted height for text, ensure it's not cut off */
+  margin-top: 1.5rem; /* Adjusted spacing above text */
+  margin-bottom: 2rem; /* Consistent spacing below text to action bar */
+  overflow: hidden; /* Hide overflowing text during animation */
   display: flex;
-  gap: 12px;
   justify-content: center;
   align-items: center;
 }
 
-/* Let the file input grow to avoid wrapping */
+.animated-text {
+  color: rgba(255, 255, 255, 0.7); /* White with slight transparency */
+  font-size: 1.2rem;
+  margin: 0; /* Remove default paragraph margins */
+  white-space: nowrap; /* Prevent text from wrapping */
+  opacity: 0; /* Start completely transparent */
+  transition: opacity 0.5s ease-in-out; /* Smooth fade in/out */
+}
+
+.animated-text.visible {
+  opacity: 1; /* Fade in */
+}
+
+.animated-text.hidden {
+  opacity: 0; /* Fade out */
+}
+
+/* ── Main Action Area ───────────────────────────────────────────────────── */
+.main-action-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.estimate-button {
+  height: 56px; /* 8px padding-top + 40px icon height + 8px padding-bottom of action-bar */
+  padding: 0 24px; /* Adjust padding to maintain horizontal spacing */
+  font-weight: bold;
+  border: none;
+  border-radius: 9999px;
+  background-color: #111827;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.estimate-button:hover {
+  background-color: #666c78;
+}
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  max-width: 100px; /* Collapsed max-width */
+  background-color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 9999px;
+  padding: 8px;
+  transition: max-width 0.3s ease-in-out;
+}
+
+.action-bar.search-active {
+  max-width: 400px; /* Expanded max-width */
+}
+
 .file-input-wrapper {
   position: relative;
-  overflow: hidden;
   display: inline-block;
-  width: auto;
-  max-width: 400px;
-  flex: 0 0 auto;       /* allows it to grow */
 }
 
-/* Style the visible trigger */
-.file-input-trigger {
-  display: block;
-  width: 100%;
-  text-align: center;
-  /* increased vertical & horizontal padding */
-  padding: 12px 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: #eef2ff;
-  font-size: 1rem;
-  white-space: nowrap;
-  /* ensure it never collapses below a reasonable width */
-  min-width: 140px;
-}
-
-/* Hidden file input covers the trigger */
-.file-input-wrapper input[type=file] {
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
+.file-upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: transparent;
   cursor: pointer;
-  height: 100%;
-  width: 100%;
+  margin-right: 8px;
 }
 
-/* Slightly larger button for balance */
-button.submit-btn {
-  flex: 0 0 auto;       /* fixed size */
-  padding: 14px 24px;
-  font-size: 1rem;
+.file-upload-label svg {
+  width: 24px;
+  height: 24px;
   color: #fff;
-  background: #000000;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-button.submit-btn:not(:disabled):hover {
-  background: #2563eb;
 }
 
-
-.result-box {
-  margin-top: 24px;
-  margin-bottom: 24px;
-  padding: 16px;
-  background: #e0f2fe;
-  color: #0369a1;
-  border-radius: 8px;
-  text-align: left;
-  word-wrap: break-word;
-}
-
-.search-bar {
-  width: calc(40vw - 120px);
-  margin: 24px auto;
+.file-input-wrapper input[type="file"] {
+  display: none;
 }
 
 .search-input-wrapper {
   display: flex;
   align-items: center;
-  border: 1px solid #d1d5db;
-  border-radius: 9999px;
-  padding: 8px 16px;
-  background-color: white;
-  width: 100%;
-}
-
-.search-input-wrapper:focus-within {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  /* No max-width: 0 here, it should always be visible */
+  overflow: hidden;
+  /* Transition for the input field's width, not the wrapper's flex-grow */
 }
 
 .search-icon {
-  font-size: 18px;
-  margin-right: 12px;
-  color: #6b7280;
+  width: 24px;
+  height: 24px;
+  color: #fff;
+  margin-right: 8px;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 .search-input {
-  flex: 1;
+  flex-grow: 1;
   border: none;
   outline: none;
   font-size: 1rem;
   background-color: transparent;
   padding: 4px 0;
+  color: #fff;
+  width: 0; /* Collapsed width */
+  transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  opacity: 0; /* Hide placeholder by default */
+}
+
+.action-bar.search-active .search-input {
+  width: 100%; /* Expanded width */
+  opacity: 1; /* Show input text */
 }
 
 .search-input::placeholder {
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
 }
 
-.go-button {
-  background-color: #111827;
+.action-bar.search-active .search-input::placeholder {
+  opacity: 1;
+}
+
+/* ── Result boxes ────────────────────────────────────────────────────────── */
+.result-box {
+  margin: 24px auto;
+  max-width: 500px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #333;
+  border-radius: 8px;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+/* ── Drag and Drop Overlay ──────────────────────────────────────────────── */
+.app-wrapper {
+  position: relative;
+}
+
+.drop-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 9999px;
+  font-size: 2rem;
   font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-left: 8px;
 }
 
-.go-button:hover {
-  background-color: #666c78;
+/* ── Loading Indicator ──────────────────────────────────────────────────── */
+.loading-indicator {
+  margin: 24px auto;
+  font-style: italic;
+  color: #666;
 }
