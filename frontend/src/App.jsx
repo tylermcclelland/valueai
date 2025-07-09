@@ -5,6 +5,7 @@ import "./App.css";
 function App() {
   // ── State Hooks ─────────────────────────────────────────────────────────
   const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [result, setResult] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [isEstimating, setIsEstimating] = useState(false);
@@ -35,6 +36,18 @@ function App() {
     return () => clearInterval(interval);
   }, [file, searchTerm]);
 
+  useEffect(() => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [file]);
+
   // ── Handlers ────────────────────────────────────────────────────────────
   const handleAction = async () => {
     if (file) {
@@ -44,17 +57,26 @@ function App() {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleAction();
+    }
+  };
+
   const estimateValue = async () => {
     if (!file) return;
     setIsEstimating(true);
+    setResult(null); // Clear previous results
     const formData = new FormData();
     formData.append("image", file);
     try {
       const res = await fetch(`${API_URL}/upload`, { method: "POST", body: formData });
+      if (!res.ok) throw new Error(`status: ${res.status}`);
       const data = await res.json();
-      setResult(data.value || "Unknown");
-    } catch {
-      setResult("Error estimating car value.");
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+      setSearchError("Error estimating car value.");
     } finally {
       setIsEstimating(false);
     }
@@ -146,9 +168,13 @@ function App() {
             >
               <div className="file-input-wrapper">
                 <label htmlFor="file-upload" className="file-upload-label">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                  </svg>
+                  {previewUrl ? (
+                    <img src={previewUrl} alt="Preview" className="image-preview" />
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                    </svg>
+                  )}
                 </label>
                 <input
                   id="file-upload"
@@ -169,6 +195,7 @@ function App() {
                   onChange={e => setSearchTerm(e.target.value)}
                   onFocus={() => setIsInputFocused(true)}
                   onBlur={() => setIsInputFocused(false)}
+                  onKeyDown={handleKeyDown}
                   disabled={!!file}
                 />
               </div>
@@ -178,7 +205,11 @@ function App() {
               onClick={handleAction}
               disabled={(!file && !searchTerm.trim()) || loadingSearch || isEstimating}
             >
-              {loadingSearch || isEstimating ? "…" : "Estimate"}
+              {loadingSearch || isEstimating ? (
+                <div className="loading-spinner"></div>
+              ) : (
+                "Estimate"
+              )}
             </button>
           </div>
   
@@ -186,18 +217,47 @@ function App() {
           {searchError && <p className="error-text">{searchError}</p>}
           {searchResult && (
             <div className="result-box">
-              <h3>Search Result</h3>
-              <p><strong>Make:</strong> {searchResult.make}</p>
-              <p><strong>Model:</strong> {searchResult.model}</p>
-              <p><strong>Year:</strong> {searchResult.year}</p>
-              <p><strong>Estimated Value:</strong> {searchResult.valueRange}</p>
+              <div className="result-grid">
+                <div className="grid-item"><strong>Make</strong></div>
+                <div className="grid-item">{searchResult.make}</div>
+                <div className="grid-item"><strong>Model</strong></div>
+                <div className="grid-item">{searchResult.model}</div>
+                <div className="grid-item"><strong>Year</strong></div>
+                <div className="grid-item">{searchResult.year}</div>
+                <div className="grid-item"><strong>Value</strong></div>
+                <div className="grid-item">{searchResult.valueRange}</div>
+                <div className="grid-item"><strong>Engine</strong></div>
+                <div className="grid-item">{searchResult.engine}</div>
+                <div className="grid-item"><strong>Horsepower</strong></div>
+                <div className="grid-item">{searchResult.horsepower}</div>
+                <div className="grid-item"><strong>Drivetrain</strong></div>
+                <div className="grid-item">{searchResult.drivetrain}</div>
+              </div>
+              <p className="description">{searchResult.description}</p>
             </div>
           )}
   
           {/* 2.4. Upload result display */}
           {result && (
             <div className="result-box">
-              <strong>Result:</strong> {result}
+              {previewUrl && <img src={previewUrl} alt="Uploaded car" className="result-image" />}
+              <div className="result-grid">
+                <div className="grid-item"><strong>Make</strong></div>
+                <div className="grid-item">{result.make}</div>
+                <div className="grid-item"><strong>Model</strong></div>
+                <div className="grid-item">{result.model}</div>
+                <div className="grid-item"><strong>Year</strong></div>
+                <div className="grid-item">{result.year}</div>
+                <div className="grid-item"><strong>Value</strong></div>
+                <div className="grid-item">{result.valueRange}</div>
+                <div className="grid-item"><strong>Engine</strong></div>
+                <div className="grid-item">{result.engine}</div>
+                <div className="grid-item"><strong>Horsepower</strong></div>
+                <div className="grid-item">{result.horsepower}</div>
+                <div className="grid-item"><strong>Drivetrain</strong></div>
+                <div className="grid-item">{result.drivetrain}</div>
+              </div>
+              <p className="description">{result.description}</p>
             </div>
           )}
         </div>
