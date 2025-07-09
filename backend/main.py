@@ -41,28 +41,51 @@ async def upload_image(image: UploadFile = File(...)):
     b64 = base64.b64encode(img_bytes).decode("utf-8")
     data_url = f"data:{image.content_type};base64,{b64}"
 
-    # b) Call the Responses API
-    resp = client.responses.create(
-        model="gpt-4o",
-        input=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                      "type": "input_text",
-                      "text": (
-                        "Please identify the make, model, and year of this car, "
-                        "and give an approximate current market value in USD."
-                      )
-                    },
-                    {"type": "input_image", "image_url": data_url}
-                ],
-            }
-        ],
-    )
+    # b) Call the Chat Completions API
+    try:
+        chat_resp = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": """
+You are a helpful car valuation assistant.
+The user will provide an image of a car.
+Reply with only a JSON object in this exact format:
 
-    # c) Return the text answer as JSON
-    return {"value": resp.output_text}
+{
+  "make": string,
+  "model": string,
+  "year": number,
+  "valueRange": string,
+  "engine": string,
+  "horsepower": number,
+  "drivetrain": string,
+  "description": string
+}
+                    """.strip(),
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": data_url, "detail": "low"},
+                        }
+                    ],
+                },
+            ],
+            temperature=0,
+        )
+
+        # c) Extract, parse, and return the model’s JSON response
+        text = chat_resp.choices[0].message.content.strip()
+        parsed = json.loads(text)
+        return JSONResponse(content=parsed)
+
+    except Exception as e:
+        # On any error, return a 500 with the detail
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ----------------------------------------
@@ -95,7 +118,11 @@ Reply with only a JSON object in this exact format:
   "make": string,
   "model": string,
   "year": number,
-  "valueRange": string
+  "valueRange": string,
+  "engine": string,
+  "horsepower": number,
+  "drivetrain": string,
+  "description": string
 }
                   """.strip()
                 },
