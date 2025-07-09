@@ -107,6 +107,21 @@ h1 {
   background-color: #666c78;
 }
 
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .action-bar {
   display: flex;
   align-items: center;
@@ -143,6 +158,19 @@ h1 {
   width: 24px;
   height: 24px;
   color: #fff;
+}
+
+.image-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.result-image {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 16px;
 }
 
 .file-input-wrapper input[type="file"] {
@@ -197,12 +225,36 @@ h1 {
 .result-box {
   margin: 24px auto;
   max-width: 500px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.8);
-  color: #333;
-  border-radius: 8px;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
   text-align: left;
   word-wrap: break-word;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.grid-item {
+  padding: 4px 0;
+}
+
+.grid-item strong {
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.description {
+  margin-top: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* ── Drag and Drop Overlay ──────────────────────────────────────────────── */
