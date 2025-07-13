@@ -16,3 +16,4 @@
 .vscode/                 # VS Code settings
 .DS_Store                # macOS Finder metadata
 npm-debug.log*           # npm debug logs
+__pycache__/
