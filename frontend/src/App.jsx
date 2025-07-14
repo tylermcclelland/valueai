@@ -101,8 +101,8 @@ function App() {
     dragCounter.current = 0;
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) {
-      setSearchTerm(""); // Clear search term if a file is dropped
-      setCarData(null);    // Clear previous results
+      setSearchTerm("");
+      setCarData(null);
       setFile(droppedFile);
     }
   };
@@ -187,7 +187,6 @@ function App() {
                 </div>
                 {carData.description && <p className="description">{carData.description}</p>}
               </div>
-
               {carData.priceHistoryMonthly && carData.priceHistoryYearly && (
                   <ValueHistoryGraph 
                     monthlyData={carData.priceHistoryMonthly}
@@ -195,7 +194,6 @@ function App() {
                   />
                 )}
             </div>
-
             {carData.listings && carData.listings.length > 0 && (
                 <ForSaleListings listings={carData.listings} />
             )}
