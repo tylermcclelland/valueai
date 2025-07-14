@@ -9,7 +9,6 @@ html, body, #root {
   padding: 0;
   height: 100%;
   font-family: Arial, sans-serif;
-<<<<<<< HEAD
 }
 
 .container {
@@ -36,7 +35,5 @@ button {
 .result {
   margin-top: 20px;
   font-weight: bold;
-=======
->>>>>>> aa22268 (completley redesigned the UI -- UI_V2)
 }
 

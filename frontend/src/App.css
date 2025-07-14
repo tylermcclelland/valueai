@@ -1,72 +1,168 @@
-/* frontend/src/App.css */
-
-/* ── Global resets & box sizing ───────────────────────────────────────────── */
+/* --- Global Styles --- */
 * {
   box-sizing: border-box;
 }
 
-/* ── Gradient backdrop ─────────────────────────────────────────────────────── */
+/* --- Animated Background --- */
 .gradient-bg {
   position: fixed;
-  inset: 0;                     /* top:0; right:0; bottom:0; left:0 */
-  background: linear-gradient(
-    45deg,
-    #ff6a95,
-    #ffcc70,
-    #6de7e7,
-    #a18cd1
-  );
+  inset: 0;
+  background: linear-gradient(45deg, #ff6a95, #ffcc70, #6de7e7, #a18cd1);
   background-size: 400% 400%;
   animation: gradientShift 30s ease infinite;
-  z-index: -1;                  /* behind your card */
+  z-index: -1;
 }
 
 @keyframes gradientShift {
-  0%   { background-position:   0%  50%; }
-  25%  { background-position:  50% 100%; }
-  50%  { background-position: 100%  50%; }
-  75%  { background-position:  50%   0%; }
-  100% { background-position:   0%  50%; }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/* ── App container & content wrapper ────────────────────────────────────── */
+/* --- Main Layout Containers --- */
+.app-wrapper {
+  position: relative;
+}
+
 .app-container {
   display: flex;
-  flex-direction: column; /* Stack content vertically */
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;             /* full viewport height */
-  padding: 20px;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 40px 20px;
   text-align: center;
 }
 
 .content-wrapper {
   width: 100%;
   max-width: 600px;
+  flex-shrink: 0;
 }
 
-/* ── Title ──────────────────────────────────────────────────────────────── */
+.results-container {
+  width: 100%;
+  margin-top: 24px;
+}
+
+/* --- Typography --- */
 h1 {
-  font-size: 4rem; /* Larger font size */
+  font-size: 4rem;
   color: white;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for readability */
-  margin-bottom: 1.5rem; /* Adjusted spacing below title */
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  margin-bottom: 1.5rem;
 }
 
 .animated-text-container {
-  min-height: 1.5rem; /* Adjusted height for text, ensure it's not cut off */
-  margin-top: 1.5rem; /* Adjusted spacing above text */
-  margin-bottom: 2rem; /* Consistent spacing below text to action bar */
-  overflow: hidden; /* Hide overflowing text during animation */
+  min-height: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Let the file input grow to avoid wrapping */
+.animated-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.2rem;
+  margin: 0;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.animated-text.visible {
+  opacity: 1;
+}
+
+.animated-text.hidden {
+  opacity: 0;
+}
+
+.section-title {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 24px;
+  text-align: left;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+/* --- Search & Action Bar --- */
+.main-action-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  max-width: 100px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 9999px;
+  padding: 8px;
+  transition: max-width 0.3s ease-in-out;
+  flex-grow: 1; /* Allow the bar to take up space */
+}
+
+.action-bar.search-active {
+  max-width: 500px; /* Give it more room to expand */
+}
+
+.search-input-wrapper {
+  display: flex; /* This keeps the icon and input side-by-side */
+  align-items: center;
+  overflow: hidden;
+  width: 100%;
+}
+
+.search-icon {
+  width: 24px;
+  height: 24px;
+  color: #fff;
+  margin: 0 8px;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background-color: transparent;
+  padding: 4px 0;
+  color: #fff;
+  width: 0;
+  opacity: 0;
+  transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.action-bar.search-active .search-input {
+  width: 100%;
+  opacity: 1;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.action-bar.search-active .search-input::placeholder {
+  opacity: 1;
+}
+
+/* --- File Upload & Image Preview --- */
 .file-input-wrapper {
   position: relative;
   display: inline-block;
+}
+
+.file-input-wrapper input[type="file"] {
+  display: none;
 }
 
 .file-upload-label {
@@ -78,111 +174,125 @@ h1 {
   border-radius: 50%;
   background-color: transparent;
   cursor: pointer;
-  margin-right: 8px;
 }
 
 .file-upload-label svg {
   width: 24px;
   height: 24px;
   color: #fff;
-  background: #000000;
+}
+
+.image-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* --- Buttons & Loaders --- */
+.estimate-button {
+  height: 56px;
+  padding: 0 24px;
+  font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 9999px;
+  background-color: #111827;
+  color: #fff;
   cursor: pointer;
-  transition: background 0.2s;
-}
-button.submit-btn:not(:disabled):hover {
-  background: #2563eb;
-}
-
-
-.result-box {
-  margin-top: 24px;
-  margin-bottom: 24px;
-  padding: 16px;
-  background: #e0f2fe;
-  color: #0369a1;
-  border-radius: 8px;
-  text-align: left;
-  word-wrap: break-word;
-}
-
-.search-bar {
-  width: calc(40vw - 120px);
-  margin: 24px auto;
-}
-
-.search-input-wrapper {
+  transition: background-color 0.2s;
   display: flex;
   align-items: center;
-  /* No max-width: 0 here, it should always be visible */
-  overflow: hidden;
-  /* Transition for the input field's width, not the wrapper's flex-grow */
+  justify-content: center;
+  flex-shrink: 0; /* Prevent button from shrinking */
 }
 
-.search-icon {
+.estimate-button:hover {
+  background-color: #666c78;
+}
+
+.loading-spinner {
   width: 24px;
   height: 24px;
-  color: #fff;
-  margin-right: 8px;
-  flex-shrink: 0; /* Prevent icon from shrinking */
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
 }
 
-.search-input {
-  flex-grow: 1;
-  border: none;
-  outline: none;
-  font-size: 1rem;
-  background-color: transparent;
-  padding: 4px 0;
-  color: #fff;
-  width: 0; /* Collapsed width */
-  transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  opacity: 0; /* Hide placeholder by default */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.action-bar.search-active .search-input {
-  width: 100%; /* Expanded width */
-  opacity: 1; /* Show input text */
-}
-
-.search-input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.go-button {
-  background-color: #111827;
+/* --- Overlays --- */
+.drop-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
   font-size: 2rem;
   font-weight: bold;
 }
 
-/* ── Loading Indicator ──────────────────────────────────────────────────── */
-.loading-indicator {
-  margin: 24px auto;
-  font-style: italic;
-  color: #666;
+/* --- Results Two-Column Layout --- */
+.details-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Info Box gets 2/3, Graph gets 1/3 */
+  gap: 24px;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-/* ─── NEW STYLES ADDED BELOW ────────────────────────────────────────────── */
+.details-layout > .result-box,
+.details-layout > .graph-container {
+    max-width: 100%;
+    margin: 0; 
+}
 
-/* ── Section Title ──────────────────────────────────────────────────────── */
-.section-title {
-  color: rgba(255, 255, 255, 0.9);
-  margin-top: 48px;
-  margin-bottom: 24px;
+/* --- Info Box --- */
+.result-box {
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
   text-align: left;
-  font-size: 1.5rem;
-  font-weight: 500;
+  word-wrap: break-word;
 }
 
+.result-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
 
-/* ── Graph ──────────────────────────────────────────────────────────────── */
+.grid-item {
+  padding: 4px 0;
+}
+
+.grid-item strong {
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.description {
+  margin-top: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* --- Graph --- */
 .graph-container {
-  margin: 24px auto 0;
-  max-width: 600px;
   padding: 24px;
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
@@ -190,86 +300,6 @@ button.submit-btn:not(:disabled):hover {
   border-radius: 12px;
 }
 
-.custom-tooltip {
-  background-color: rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 8px 12px;
-  border-radius: 8px;
-  color: white;
-  font-size: 0.9rem;
-}
-
-.custom-tooltip .label {
-  font-weight: bold;
-  margin: 0 0 4px 0;
-}
-
-.custom-tooltip .intro {
-  margin: 0;
-}
-
-/* ── Details Page Layout ────────────────────────────────────────────────── */
-.details-layout {
-  display: grid;
-  /* Left column (info) is 60% wide, Right column (graph) is 40% */
-  grid-template-columns: 50% 50%; 
-  gap: 24px;
-  align-items: stretch;
-  width: 100%;
-  max-width: 1200px; /* Wider layout for two columns */
-  margin: 24px auto 0;
-  padding: 0 20px; /* Add some horizontal padding */
-}
-
-/* This makes sure the direct children of the grid layout fill their space */
-.details-layout > .result-box,
-.details-layout > .graph-container {
-    max-width: 100%;
-    margin: 0; 
-}
-
-/* ── Carousel ─────────────────────────────────────────────────────────── */
-.carousel-wrapper {
-  margin: 24px auto 0;
-  width: 100%;
-  max-width: 1200px;
-}
-
-.carousel .slide {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  overflow: hidden; 
-  height: 500px;
-}
-
-.carousel .slide img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-}
-
-.carousel .control-arrow, .carousel.carousel-slider .control-arrow {
-  opacity: 0.7;
-  background: rgba(0, 0, 0, 0.2) !important;
-}
-
-.carousel .control-arrow:hover {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.4) !important;
-}
-
-.carousel .control-dots .dot {
-  background: rgba(255, 255, 255, 0.4);
-  box-shadow: none;
-}
-
-.carousel .control-dots .dot.selected, 
-.carousel .control-dots .dot:hover {
-  background: #fff;
-}
-
-/* ── Graph Header & Toggle Buttons ──────────────────────────────────────── */
 .graph-header {
   display: flex;
   justify-content: space-between;
@@ -278,7 +308,7 @@ button.submit-btn:not(:disabled):hover {
 }
 
 .graph-header .section-title {
-  margin: 0; 
+  margin: 0;
 }
 
 .timeframe-controls {
@@ -310,7 +340,25 @@ button.submit-btn:not(:disabled):hover {
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
-/* ── For Sale Listings ─────────────────────────────────────────────────── */
+.custom-tooltip {
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.custom-tooltip .label {
+  font-weight: bold;
+  margin: 0 0 4px 0;
+}
+
+.custom-tooltip .intro {
+  margin: 0;
+}
+
+/* --- For Sale Listings --- */
 .listings-container {
   margin: 48px auto 0;
   width: 100%;
@@ -380,7 +428,7 @@ button.submit-btn:not(:disabled):hover {
   margin: 0;
 }
 
-/* ── Responsive adjustments for listings ───────────────────────────────── */
+/* --- Responsive Media Queries --- */
 @media (max-width: 1024px) {
   .listings-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -388,6 +436,10 @@ button.submit-btn:not(:disabled):hover {
 }
 
 @media (max-width: 640px) {
+  .details-layout {
+    grid-template-columns: 1fr;
+  }
   .listings-grid {
     grid-template-columns: 1fr;
-}}
+  }
+}
