@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useCarFinder } from './hooks/useCarFinder';
 import "./App.css";
 import ValueHistoryGraph from './ValueHistoryGraph';
 import ForSaleListings from './ForSaleListings';
@@ -7,9 +8,6 @@ function App() {
   // State
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [carData, setCarData] = useState(null);
-  const [isEstimating, setIsEstimating] = useState(false);
-  const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const dragCounter = useRef(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,7 +15,8 @@ function App() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showAnimatedText, setShowAnimatedText] = useState(true);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  // Custom hook for API calls
+  const { carData, isEstimating, error, findCarsByTerm } = useCarFinder();
 
   // Effects
   useEffect(() => {
@@ -45,39 +44,13 @@ function App() {
   // Handlers
   const handleAction = async () => {
     if (searchTerm.trim()) {
-      await findCars();
+      await findCarsByTerm(searchTerm);
     }
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleAction();
-    }
-  };
-
-  const findCars = async () => {
-    if (!searchTerm.trim()) return;
-    setIsEstimating(true);
-    setError("");
-    setCarData(null);
-
-    try {
-      const res = await fetch(`${API_URL}/find-cars`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ searchTerm: searchTerm.trim() }),
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.detail || `Server error: ${res.status}`);
-      }
-      const data = await res.json();
-      setCarData(data);
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Failed to fetch car info.");
-    } finally {
-      setIsEstimating(false);
     }
   };
 
@@ -102,9 +75,44 @@ function App() {
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) {
       setSearchTerm("");
-      setCarData(null);
+      // NOTE: setCarData is now controlled by the useCarFinder hook.
+      // To clear data, a function would need to be exposed from the hook.
       setFile(droppedFile);
     }
+  };
+
+  // --- NEW FUNCTION ---
+  // This function transforms the data from the API to the format the new graph component expects.
+  // It converts the 'name' key (e.g., "January" or "2024") into a 'date' key with a timestamp value.
+  const transformGraphData = (dataArray = []) => {
+    if (!dataArray || dataArray.length === 0) return [];
+    
+    // A more robust check to see if the data is yearly.
+    const isYearly = dataArray[0].name.length === 4 && !isNaN(parseInt(dataArray[0].name, 10));
+    const currentYear = new Date().getFullYear();
+
+    return dataArray.map(item => {
+      let dateObject;
+      if (isYearly) {
+        // This part for yearly data works well.
+        dateObject = new Date(item.name, 0, 1);
+      } else {
+        // This part is improved to handle monthly data when 'name' is a number (e.g., "1", "2").
+        const monthIndex = parseInt(item.name, 10) - 1; // JS months are 0-11, so "1" becomes 0.
+        
+        // Check if the month number is valid (0-11)
+        if (monthIndex >= 0 && monthIndex < 12) {
+          dateObject = new Date(currentYear, monthIndex, 1);
+        } else {
+          // If the data format is unexpected, return null to filter it out later.
+          return { date: null, value: item.value };
+        }
+      }
+      return {
+        date: dateObject.getTime(), // The graph needs a timestamp
+        value: item.value
+      };
+    }).filter(item => item.date !== null); // Remove any entries that failed to parse.
   };
 
   // Render
@@ -188,9 +196,11 @@ function App() {
                 {carData.description && <p className="description">{carData.description}</p>}
               </div>
               {carData.priceHistoryMonthly && carData.priceHistoryYearly && (
+                  // --- MODIFIED SECTION ---
+                  // Use the new transformation function before passing data to the graph component.
                   <ValueHistoryGraph 
-                    monthlyData={carData.priceHistoryMonthly}
-                    yearlyData={carData.priceHistoryYearly}
+                    monthlyData={transformGraphData(carData.priceHistoryMonthly)}
+                    yearlyData={transformGraphData(carData.priceHistoryYearly)}
                   />
                 )}
             </div>
