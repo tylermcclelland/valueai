@@ -195,14 +195,10 @@ function App() {
                 </div>
                 {carData.description && <p className="description">{carData.description}</p>}
               </div>
-              {carData.priceHistoryMonthly && carData.priceHistoryYearly && (
-                  // --- MODIFIED SECTION ---
-                  // Use the new transformation function before passing data to the graph component.
                   <ValueHistoryGraph 
                     monthlyData={transformGraphData(carData.priceHistoryMonthly)}
                     yearlyData={transformGraphData(carData.priceHistoryYearly)}
                   />
-                )}
             </div>
             {carData.listings && carData.listings.length > 0 && (
                 <ForSaleListings listings={carData.listings} />

@@ -33,31 +33,54 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 function ValueHistoryGraph({ monthlyData, yearlyData }) {
-  const [timeframe, setTimeframe] = useState('monthly'); 
-  
-  // --- ADDED: Sort the yearly data in ascending order ---
-  const sortedYearlyData = yearlyData ? [...yearlyData].sort((a, b) => a.date - b.date) : [];
+  // --- MODIFIED: Logic to handle potentially empty data ---
+  const hasMonthlyData = monthlyData && monthlyData.length > 0;
+  const hasYearlyData = yearlyData && yearlyData.length > 0;
 
+  // Set the default timeframe based on which data is available
+  const [timeframe, setTimeframe] = useState(hasYearlyData ? 'yearly' : 'monthly'); 
+  
+  const sortedYearlyData = hasYearlyData ? [...yearlyData].sort((a, b) => a.date - b.date) : [];
   const data = timeframe === 'monthly' ? monthlyData : sortedYearlyData;
   const chartColor = "#a18cd1"; 
   
+  // --- ADDED: Check if any data exists at all. If not, show a message. ---
+  if (!hasMonthlyData && !hasYearlyData) {
+    return (
+      <div className="value-graph-container">
+        <div className="graph-header">
+          <h3 className="section-title">Value History</h3>
+        </div>
+        <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255, 255, 255, 0.5)' }}>
+          <p>Price history data is not available for this model.</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // If data exists, return the chart as before.
   return (
     <div className="value-graph-container">
       <div className="graph-header">
         <h3 className="section-title">Value History</h3>
         <div className="timeframe-controls">
-          <button 
-            className={`timeframe-btn ${timeframe === 'monthly' ? 'active' : ''}`}
-            onClick={() => setTimeframe('monthly')}
-          >
-            Monthly
-          </button>
-          <button 
-            className={`timeframe-btn ${timeframe === 'yearly' ? 'active' : ''}`}
-            onClick={() => setTimeframe('yearly')}
-          >
-            Yearly
-          </button>
+          {/* Only show the button if its data exists */}
+          {hasMonthlyData && (
+            <button 
+              className={`timeframe-btn ${timeframe === 'monthly' ? 'active' : ''}`}
+              onClick={() => setTimeframe('monthly')}
+            >
+              Monthly
+            </button>
+          )}
+          {hasYearlyData && (
+            <button 
+              className={`timeframe-btn ${timeframe === 'yearly' ? 'active' : ''}`}
+              onClick={() => setTimeframe('yearly')}
+            >
+              Yearly
+            </button>
+          )}
         </div>
       </div>
 

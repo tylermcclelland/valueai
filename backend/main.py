@@ -1,4 +1,3 @@
-# backend/main.py
 import os
 import json
 import random
@@ -28,9 +27,9 @@ app.add_middleware(
 
 def fetch_car_images_and_links(query: str, num: int = 4):
     """
-    Fetches unique car images, preventing duplicates from the same source URL.
+    Fetches unique car images, links, AND TITLES.
     """
-    print(f"DEBUG: Starting search for unique images for query: '{query}'")
+    print(f"DEBUG: Starting search for unique items for query: '{query}'")
     
     sites_to_search = [
         "cars.com",
@@ -57,7 +56,7 @@ def fetch_car_images_and_links(query: str, num: int = 4):
 
             num_needed = num - len(image_data)
             site_specific_query = f'"{query}" for sale site:{site}'
-            print(f"DEBUG: Searching {site} for {num_needed} unique image(s)...")
+            print(f"DEBUG: Searching {site} for {num_needed} unique item(s)...")
             
             try:
                 res = service.cse().list(
@@ -73,14 +72,16 @@ def fetch_car_images_and_links(query: str, num: int = 4):
                 for item in res.get('items', []):
                     image_url = item.get('link')
                     source_url = item.get('image', {}).get('contextLink')
+                    title = item.get('title')
                     
                     if source_url and source_url not in seen_source_urls:
                         image_data.append({
                             "imageUrl": image_url,
-                            "sourceUrl": source_url
+                            "sourceUrl": source_url,
+                            "title": title
                         })
                         seen_source_urls.add(source_url)
-                        print(f"DEBUG: Found a unique image from {site}. Total found: {len(image_data)}")
+                        print(f"DEBUG: Found a unique item from {site}. Total found: {len(image_data)}")
 
                     if len(image_data) >= num:
                         break
@@ -89,7 +90,7 @@ def fetch_car_images_and_links(query: str, num: int = 4):
                 print(f"!!! SITE SEARCH ERROR for {site}: {site_e}")
                 continue
         
-        print(f"DEBUG: Finished search. Found a total of {len(image_data)} unique images.")
+        print(f"DEBUG: Finished search. Found a total of {len(image_data)} unique items.")
         return image_data
 
     except Exception as e:
@@ -119,64 +120,43 @@ You must reply with only a JSON object in this exact format.
   2. The **high end** of the range should represent a model with **low mileage** (e.g., 15,000-30,000 miles) in excellent, Certified Pre-Owned (CPO) condition.
 - The `description` MUST explain that the value depends heavily on these factors.
 - For `priceHistoryYearly`, generate a history ONLY from the car's manufacturing year up to the current year (2025), reflecting realistic depreciation.
-
 {
   "make": "Audi",
   "model": "A8",
   "year": 2019,
   "valueRange": "$28,000 - $45,000",
   "description": "A luxurious full-size sedan. The market value varies significantly based on mileage and condition, from higher-mileage examples to low-mileage Certified Pre-Owned models from dealers.",
-  "priceHistoryMonthly": [
-    { "name": "12m ago", "value": 38000 },
-    { "name": "10m ago", "value": 37000 },
-    { "name": "8m ago", "value": 36500 },
-    { "name": "6m ago", "value": 35000 },
-    { "name": "4m ago", "value": 34000 },
-    { "name": "2m ago", "value": 33000 },
-    { "name": "current", "value": 32000 }
-  ],
-  "priceHistoryYearly": [
-    { "name": "2019", "value": 80000 },
-    { "name": "2020", "value": 65000 },
-    { "name": "2021", "value": 55000 },
-    { "name": "2022", "value": 48000 },
-    { "name": "2023", "value": 42000 },
-    { "name": "2024", "value": 37000 },
-    { "name": "2025", "value": 32000 }
-  ],
-  "listings": [
-    { "id": 1, "title": "2019 Audi A8 L", "price": "Click for Price", "mileage": "View Listing for Details" },
-    { "id": 2, "title": "2019 Audi A8 55 TFSI", "price": "Click for Price", "mileage": "View Listing for Details" },
-    { "id": 3, "title": "2019 Audi A8 60 TFSI", "price": "Click for Price", "mileage": "View Listing for Details" },
-    { "id": 4, "title": "2019 Audi A8 Executive", "price": "Click for Price", "mileage": "View Listing for Details" }
-  ]
+  "priceHistoryMonthly": [ { "name": "12", "value": 38000 }, { "name": "11", "value": 37000 }, { "name": "10", "value": 36500 }, { "name": "9", "value": 35000 }, { "name": "8", "value": 34000 }, { "name": "7", "value": 33000 }, { "name": "6", "value": 32000 } ],
+  "priceHistoryYearly": [ { "name": "2019", "value": 80000 }, { "name": "2020", "value": 65000 }, { "name": "2021", "value": 55000 }, { "name": "2022", "value": 48000 }, { "name": "2023", "value": 42000 }, { "name": "2024", "value": 37000 }, { "name": "2025", "value": 32000 } ]
 }
                   """.strip()
                 },
                 {"role": "user", "content": req.searchTerm}
             ],
-            temperature=0.4 # Lower temperature for more predictable, less "creative" values
+            temperature=0.4
         )
         parsed_json = json.loads(chat_resp.choices[0].message.content)
 
-        # Step 2: Fetch REAL, UNIQUE car images from the web
+        # Step 2: Fetch REAL car images, links, AND titles from the web
         search_query = f"{parsed_json.get('year')} {parsed_json.get('make')} {parsed_json.get('model')}"
         image_data = fetch_car_images_and_links(search_query, num=4)
         
-        # Step 3: Combine AI data with real images, ensuring no blank items
-        num_found_images = len(image_data)
-        if num_found_images > 0:
-            listings_to_process = parsed_json.get('listings', [])[:num_found_images]
-            
-            for i, listing in enumerate(listings_to_process):
-                listing['imageUrl'] = image_data[i].get('imageUrl')
-                listing['sourceUrl'] = image_data[i].get('sourceUrl')
-            
-            parsed_json['listings'] = listings_to_process
+        # Step 3: Build listings from REAL data, not AI placeholders
+        if image_data:
+            new_listings = []
+            for item in image_data:
+                new_listings.append({
+                    "title": item.get("title", f"{search_query} Listing"), # Use the REAL title
+                    "imageUrl": item.get("imageUrl"),
+                    "sourceUrl": item.get("sourceUrl"),
+                    "price": "Click for Price", # Keep as placeholder
+                    "mileage": "View Listing for Details" # Keep as placeholder
+                })
+            # Replace the AI's fake listings with the new, real ones
+            parsed_json['listings'] = new_listings
         else:
+            # If no images are found, ensure listings is an empty array
             parsed_json['listings'] = []
-
-        parsed_json['imageUrls'] = [item.get('imageUrl') for item in image_data if item.get('imageUrl')]
         
         print(f"DEBUG: Final data sent to frontend: {json.dumps(parsed_json, indent=2)}")
         return JSONResponse(content=parsed_json)
